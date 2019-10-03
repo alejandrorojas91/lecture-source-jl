@@ -68,7 +68,7 @@ The presentation in this and our remaining lectures is more of a tutorial style 
 Example: Plotting a White Noise Process
 ================================================
 
-To begin, let's suppose that we want to simulate and plot the white noise
+To begin, let us suppose that we want to simulate and plot the white noise
 process :math:`\epsilon_0, \epsilon_1, \ldots, \epsilon_T`, where each draw :math:`\epsilon_t` is independent standard normal
 
 .. Commenting out figure, at least while broken.
