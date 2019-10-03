@@ -1172,6 +1172,78 @@ Exercise 6
 Exercise 7: Hint
 -----------------
 
+My proposed solution for point 7 is:
+
+We start by defining parameters:
+
+.. code-block:: julia
+α = 1.0
+σ = 0.2
+sim = 100
+t_max = 200
+x_zero = 1
+x_max = 0
+
+We fill up the values of a matrix with the simulated trayectories
+
+.. code-block:: julia
+X = fill(1.0, (sim,t_max+1));
+X[:,1] .= x_zero;
+for j ∈ 2:t_max
+    ϵ = randn(sim);
+    X[:,j] = α * X[:,j-1] + σ * ϵ;
+end
+X[:,t_max+1] .= x_max;
+
+Now, for each trayectorie we are going to calculate the first-passage time
+
+.. code-block:: julia
+Y = (X .> 0);
+Z = fill(1,(sim,t_max+1));
+A = Y[:, 1];
+for j ∈ 2:t_max+1
+    Z[:, j] = Y[:, j] .* Y[:, j-1] .* A;
+    A = A .* Y[:, j]
+end
+
+T = fill(0,(sim,1));
+for i ∈ 1:sim
+    T[i,1] = sum(Z[i,:]);
+end
+using Plots
+histogram(T, bins = 1:10:t_max+1)
+
+We are going to create a function that gives the mean of the first time passage for different values of α
+
+.. code-block:: julia
+function meanT(α; σ = 0.2, sim = 100, t_max = 200, x_zero = 1, x_max = 0)
+    X = fill(1.0, (sim,t_max+1));
+    X[:,1] .= x_zero;
+    for j ∈ 2:t_max
+        ϵ = randn(sim);
+        X[:,j] = α * X[:,j-1] + σ * ϵ;
+    end
+    X[:,t_max+1] .= x_max;
+    Y = (X .> 0);
+    Z = fill(1,(sim,t_max+1));
+    for j ∈ 2:t_max+1
+        Z[:, j] = Y[:, j] .* Y[:, j-1];
+    end
+
+    T = fill(0,(sim,1));
+
+    for i ∈ 1:sim
+        T[i,1] = sum(Z[i,:]);
+    end
+    return mean(T)
+end
+
+X = [0.8; 1.0; 1.2];
+@show Y = meanT.(X)
+
+@show plot(X,Y,seriestype=:scatter,title="Sample Mean of first-passage time",xlabel = "Alpha", ylabel = "Mean")
+
+
 As a hint, notice the following pattern for finding the number of draws of a uniform random number until it is below a given threshold
 
 .. code-block:: julia
